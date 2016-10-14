@@ -7,7 +7,7 @@ from os import makedirs
 from subprocess import check_output
 
 from atb_api import API
-ATB_API = API(api_format='yaml')
+ATB_API = API(api_format='yaml', debug=True)
 
 DEBUG = False
 
@@ -29,25 +29,39 @@ def write_lgf_for(molecule, repository_directory):
     )
 
 def download_molecule_files_in(molecule, repository_directory, debug=DEBUG):
-    molecule.generate_mol_data()
+    print 'INFO: Generating molecule {0}'.format(molecule.molid)
+    try:
+        molecule.generate_mol_data()
 
-    molecule.download_file(
-        atb_format='mtb_aa',
-        fnme=path_for(molecule, repository_directory, 'mtb'),
-    )
+        molecule.download_file(
+            atb_format='mtb_aa',
+            fnme=path_for(molecule, repository_directory, 'mtb'),
+        )
 
-    molecule.download_file(
-        atb_format='pdb_aa',
-        fnme=path_for(molecule, repository_directory, 'pdb'),
-    )
+        molecule.download_file(
+            atb_format='pdb_aa',
+            fnme=path_for(molecule, repository_directory, 'pdb'),
+        )
 
-    write_lgf_for(molecule, repository_directory)
+        write_lgf_for(molecule, repository_directory)
+    except:
+        from traceback import format_exc
+        print \
+'''ERROR:
+Traceback:
+{0}
+
+Molecule:
+{1}
+
+'''.format(format_exc(), molecule)
 
 Repository = namedtuple('Repository', 'name, search_kwargs')
 
 REPOSITORIES = [
     #Repository('lipids', {'moltype': 'lipid'}),
-    Repository('mobley', {'tag': 'Mobley et al.'}),
+    #Repository('mobley', {'tag': 'Mobley et al.'}),
+    Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}),
 ]
 
 def path_for_repository(repository):
@@ -57,13 +71,12 @@ def construct_repository(repository):
     repository_path = path_for_repository(repository)
     if not exists(repository_path):
         makedirs(repository_path)
-    else:
-        raise Exception('Repository already exists at "{0}". Aborting ...'.format(repository_path))
 
     molecules = ATB_API.Molecules.search(**repository.search_kwargs)
-    print 'Will download {0} molecules for repository {1}'.format(
+    print 'Will download {0} molecules for repository {1}: {2}'.format(
         len(molecules),
         repository.name,
+        str(molecules)[:100] + '...',
     )
     [
         download_molecule_files_in(molecule, repository_path)
