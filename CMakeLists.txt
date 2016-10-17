@@ -7,9 +7,9 @@ IF(NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug Release Profile" FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -Wno-long-long -Wno-unknown-pragmas -g -ggdb -O0 -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -Wno-long-long -Wno-unknown-pragmas -g -pg -ggdb -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -Wno-long-long -Wno-unknown-pragmas -O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_PROFILE "-Wall -Wextra -Wno-long-long -Wno-unknown-pragmas -O3 -g -ggdb -DNDEBUG")
+set(CMAKE_CXX_FLAGS_PROFILE "-Wall -Wextra -Wno-long-long -Wno-unknown-pragmas -O3 -g -pg -ggdb -DNDEBUG")
 
 set( Boost_USE_STATIC_LIBS ON )
 find_package( Boost 1.46.0 REQUIRED )
