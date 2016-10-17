@@ -7,4 +7,4 @@ profile: gmon.out
 .PHONY: profile
 
 gmon.out:
-	-$(../build/fragments) 1787.lgf 2227.lgf
+	-$(../build/fragments) 1787_query.lgf 2227.lgf
