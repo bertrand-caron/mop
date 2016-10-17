@@ -1,8 +1,10 @@
 EXECUTABLE = ../build/fragments
 
 profile: gmon.out
-	gprof $(EXECUTABLE) $<
+	echo 'WARNING: Compile "fragments" with profiling enabled by running "cmake .. -DCMAKE_BUILD_TYPE=Profile" in your "build" directory.'
+	gprof $(EXECUTABLE) $< > profile.out
+	vim profile.out
 .PHONY: profile
 
 gmon.out:
-	-$(../build/fragments)
+	-$(../build/fragments) 1787.lgf 2227.lgf
