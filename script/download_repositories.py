@@ -61,7 +61,8 @@ Repository = namedtuple('Repository', 'name, search_kwargs')
 REPOSITORIES = [
     #Repository('lipids', {'moltype': 'lipid'}),
     #Repository('mobley', {'tag': 'Mobley et al.'}),
-    Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}),
+    #Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}),
+    Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}),
 ]
 
 def path_for_repository(repository):
@@ -84,4 +85,8 @@ def construct_repository(repository):
     ]
 
 if __name__ == "__main__":
-    [construct_repository(repository) for repository in REPOSITORIES]
+    [
+        construct_repository(repository)
+        for repository in REPOSITORIES
+        if not exists(path_for_repository(repository))
+    ]
