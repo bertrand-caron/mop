@@ -5,6 +5,7 @@ from collections import namedtuple
 from os.path import exists, join, abspath, dirname, basename
 from os import makedirs
 from subprocess import check_output
+from glob import glob
 
 from atb_api import API
 ATB_API = API(api_format='yaml', debug=True)
@@ -44,6 +45,8 @@ def download_molecule_files_in(molecule, repository_directory, debug=DEBUG):
         )
 
         write_lgf_for(molecule, repository_directory)
+    except KeyboardInterrupt:
+        raise
     except:
         from traceback import format_exc
         print \
@@ -62,7 +65,8 @@ REPOSITORIES = [
     #Repository('lipids', {'moltype': 'lipid'}),
     #Repository('mobley', {'tag': 'Mobley et al.'}),
     #Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}),
-    Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}),
+    #Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}),
+    Repository('has_TI', {'has_TI': True, 'limit': 100000})
 ]
 
 def path_for_repository(repository):
@@ -79,14 +83,21 @@ def construct_repository(repository):
         repository.name,
         str(molecules)[:100] + '...',
     )
+
+    found_molids = set([
+        int(basename(fullpath.split('.')[0]))
+        for fullpath in glob(join(repository_path, '*.lgf'))
+    ])
+
     [
         download_molecule_files_in(molecule, repository_path)
         for molecule in molecules
+        if molecule.molid not in found_molids
     ]
 
 if __name__ == "__main__":
     [
         construct_repository(repository)
         for repository in REPOSITORIES
-        if not exists(path_for_repository(repository))
+        #if not exists(path_for_repository(repository))
     ]
