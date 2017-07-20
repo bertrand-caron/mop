@@ -6,6 +6,7 @@ from os.path import exists, join, abspath, dirname, basename
 from os import makedirs
 from subprocess import check_output
 from glob import glob
+from json import loads
 
 from atb_api import API
 ATB_API = API(api_format='yaml', debug=True)
@@ -59,14 +60,16 @@ Molecule:
 
 '''.format(format_exc(), molecule)
 
-Repository = namedtuple('Repository', 'name, search_kwargs')
+Repository = namedtuple('Repository', 'name, search_kwargs, extra_molids')
 
 REPOSITORIES = [
-    #Repository('lipids', {'moltype': 'lipid'}),
-    #Repository('mobley', {'tag': 'Mobley et al.'}),
-    #Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}),
-    #Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}),
-    Repository('has_TI', {'has_TI': True, 'limit': 100000})
+    #Repository('lipids', {'moltype': 'lipid'}, []),
+    #Repository('mobley', {'tag': 'Mobley et al.'}, []),
+    #Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}, []),
+    #Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}, []),
+    #Repository('has_TI', {'has_TI': True, 'limit': 100000}, [])
+    #Repository('has_TI', None, [2202, 2220, 2221, 2222, 2223, 5523, 2225, 5568, 2227, 2228, 5582, 5583, 4450, 4451, 2233, 2234, 4386, 2236, 2237, 4388])
+    Repository('has_TI_no_duplicates', None, loads(open('has_TI_no_duplicates.json').read())['molids'])
 ]
 
 def path_for_repository(repository):
@@ -77,12 +80,18 @@ def construct_repository(repository):
     if not exists(repository_path):
         makedirs(repository_path)
 
-    molecules = ATB_API.Molecules.search(**repository.search_kwargs)
-    print 'Will download {0} molecules for repository {1}: {2}'.format(
-        len(molecules),
-        repository.name,
-        str(molecules)[:100] + '...',
-    )
+    if repository.search_kwargs is not None:
+        molecules = ATB_API.Molecules.search(**repository.search_kwargs)
+        print 'Will download {0} molecules for repository {1}: {2}'.format(
+            len(molecules),
+            repository.name,
+            str(molecules)[:100] + '...',
+        )
+    else:
+        molecules = []
+
+    molecules += ATB_API.Molecules.molids(molids=repository.extra_molids)
+    print(molecules)
 
     found_molids = set([
         int(basename(fullpath.split('.')[0]))
@@ -99,5 +108,4 @@ if __name__ == "__main__":
     [
         construct_repository(repository)
         for repository in REPOSITORIES
-        #if not exists(path_for_repository(repository))
     ]
