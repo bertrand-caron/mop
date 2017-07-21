@@ -68,7 +68,7 @@ REPOSITORIES = [
     #Repository('qm2', {'maximum_qm_level': '2', 'is_finished': 'True'}, []),
     #Repository('qm1', {'maximum_qm_level': '1', 'is_finished': 'True'}, []),
     #Repository('has_TI', {'has_TI': True, 'limit': 100000}, [])
-    #Repository('has_TI', None, [2202, 2220, 2221, 2222, 2223, 5523, 2225, 5568, 2227, 2228, 5582, 5583, 4450, 4451, 2233, 2234, 4386, 2236, 2237, 4388])
+    Repository('warfarins', None, [2202, 2220, 2221, 2222, 2223, 5523, 2225, 5568, 2227, 2228, 5582, 5583, 4450, 4451, 2233, 2234, 4386, 2236, 2237, 4388]),
     Repository('has_TI_no_duplicates', None, loads(open('has_TI_no_duplicates.json').read())['molids'])
 ]
 
@@ -81,7 +81,7 @@ def construct_repository(repository):
         makedirs(repository_path)
 
     if repository.search_kwargs is not None:
-        molecules = ATB_API.Molecules.search(**repository.search_kwargs)
+        molecules = ATB_API.Molecules.search(limit=1000000, **repository.search_kwargs)
         print 'Will download {0} molecules for repository {1}: {2}'.format(
             len(molecules),
             repository.name,
